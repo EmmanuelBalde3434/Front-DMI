@@ -1,0 +1,1 @@
+export type TabKey = 'doctors' | 'appointments' | 'messages' | 'profile';
