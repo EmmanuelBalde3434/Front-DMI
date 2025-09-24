@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authServices } from '../services/authServices';
 import type { User } from './types';
 
 export type AuthContextType = {
@@ -34,26 +35,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true);
     await sleep(300);
-    if (!emailOk(email) || password.length < 6) {
+    try {
+      const res = await fetch(authServices.auth.login, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message);
+      }
+
+      const data = await res.json();
+
+      const dataUser = { id: data.user.id, email: data.user.email, name: data.user.name };
+      setUser(dataUser);
+
+      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({
+        ...dataUser,
+        accessToken: data.accessToken
+      }));
+
+    } finally {
       setLoading(false);
-      throw new Error('Credenciales inválidas');
     }
-    const u = { id: 'me', email, name: email.split('@')[0] };
-    setUser(u);
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(u));
-    setLoading(false);
   };
 
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     await sleep(400);
-    if (!name.trim()) { setLoading(false); throw new Error('Ingresa tu nombre'); }
-    if (!emailOk(email)) { setLoading(false); throw new Error('Email inválido'); }
-    if (password.length < 6) { setLoading(false); throw new Error('Contraseña muy corta'); }
-    const u = { id: String(Date.now()), email, name };
-    setUser(u);
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(u));
-    setLoading(false);
+    try {
+      const res = await fetch(authServices.auth.register, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message);
+      }
+
+      const data = await res.json();
+
+      const dataUser = { id: data.user.id, email: data.user.email, name: data.user.name };
+      setUser(dataUser);
+
+      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({
+        ...dataUser,
+        accessToken: data.accessToken
+      }));
+      
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
