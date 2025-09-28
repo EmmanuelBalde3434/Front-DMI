@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
 import { useAppts } from '../appointments/ApptStore';
+import CardClima from '../components/CardClima';
 
 
 export default function Appointments() {
     const { appts, removeAppt } = useAppts();
+
+
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
             <Header title="Mis citas" />
+            <CardClima />
             {appts.length === 0 ? (
                 <Text style={{ padding: 16, color: '#6b7280' }}>Aún no tienes citas programadas.</Text>
             ) : (
@@ -21,7 +25,15 @@ export default function Appointments() {
                             <Text style={{ fontWeight: '800' }}>{item.doctorName}</Text>
                             <Text style={{ color: '#6b7280' }}>{item.speciality} • {item.hospital}</Text>
                             <Text style={{ marginTop: 6 }}>🗓️ {new Date(item.when).toLocaleString()}</Text>
-                            <TouchableOpacity onPress={() => removeAppt(item.id)} style={{ marginTop: 10, backgroundColor: '#ef4444', paddingVertical: 10, borderRadius: 10, alignItems: 'center' }}>
+                            <TouchableOpacity
+                                onPress={() => removeAppt(item.id)}
+                                style={{
+                                    marginTop: 10,
+                                    backgroundColor: '#ef4444',
+                                    paddingVertical: 10,
+                                    borderRadius: 10,
+                                    alignItems: 'center'
+                                }}>
                                 <Text style={{ color: '#fff', fontWeight: '800' }}>Cancelar cita</Text>
                             </TouchableOpacity>
                         </View>

@@ -2,6 +2,8 @@ import React, { createContext, useContext, useMemo, useState, useEffect } from '
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authServices } from '../services/authServices';
 import type { User } from './types';
+import { secureAccesToken } from '../services/authServices';
+import { secureUserData } from '../services/authServices';
 
 export type AuthContextType = {
   user: User;
@@ -21,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     (async () => {
       try {
@@ -31,6 +34,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })();
   }, []);
+
+ 
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -48,14 +53,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await res.json();
-
       const dataUser = { id: data.user.id, email: data.user.email, name: data.user.name };
       setUser(dataUser);
+      await secureAccesToken(data.accessToken);
+      await secureUserData(dataUser);
 
-      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({
-        ...dataUser,
-        accessToken: data.accessToken
-      }));
 
     } finally {
       setLoading(false);
