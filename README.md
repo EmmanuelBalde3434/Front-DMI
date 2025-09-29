@@ -71,20 +71,6 @@ const login = async (email, password) => {
 Consulta el archivo SECURITY.md
  para conocer los principios y medidas de seguridad aplicadas en la app.
 
-📸 Evidencias
-
-Incluye capturas de pantalla del funcionamiento de la app:
-
-Inicio de sesión.
-![Registro](pictures/imageA1.jpeg)
-![Iniciar Sesion](pictures/imageA4.jpeg)
-
-Consumo de API.
-![Logs Backend](pictures/imageA2.jpg)
-
-Vista principal.
-![Main_React](pictures/imageA3.jpeg)
-
 👥 Autores
 
 Equipo de desarrollo:
