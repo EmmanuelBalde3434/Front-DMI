@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { authServices } from '../services/authServices';
-import type { User } from './types';
-import { secureAccesToken } from '../services/authServices';
-import { secureUserData } from '../services/authServices';
+import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  login as loginService,
+  register as registerService,
+  logout as logoutService,
+  secureAccesToken,
+  secureUserData,
+} from "../services/authServices";
+import type { User } from "./types";
 
 export type AuthContextType = {
-  user: User;
+  user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -14,15 +18,11 @@ export type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const emailOk = (s: string) => /\S+@\S+\.\S+/.test(s);
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const SESSION_KEY = 'medapp_session_v1';
+const SESSION_KEY = "medapp_session_v1";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     (async () => {
@@ -35,66 +35,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
- 
-
   const login = async (email: string, password: string) => {
-    setLoading(true);
-    await sleep(300);
-    try {
-      const res = await fetch(authServices.auth.login, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  setLoading(true);
+  try {
+    const data = await loginService(email, password);
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message);
-      }
+    const dataUser = {
+      id: String(data.user.id),
+      email: data.user.email,
+      name: data.user.name,
+    };
 
-      const data = await res.json();
-      const dataUser = { id: data.user.id, email: data.user.email, name: data.user.name };
-      setUser(dataUser);
-      await secureAccesToken(data.accessToken);
-      await secureUserData(dataUser);
+    setUser(dataUser);
 
+    await secureAccesToken(data.accessToken);
 
-    } finally {
-      setLoading(false);
-    }
-  };
+    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(dataUser));
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
-    await sleep(400);
     try {
-      const res = await fetch(authServices.auth.register, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const data = await registerService(name, email, password);
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message);
-      }
-
-      const data = await res.json();
-
-      const dataUser = { id: data.user.id, email: data.user.email, name: data.user.name };
+      const dataUser = {
+        id: data.user?.id,
+        email: data.user?.email,
+        name: data.user?.name,
+      };
       setUser(dataUser);
 
-      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({
-        ...dataUser,
-        accessToken: data.accessToken
-      }));
-      
+      await secureAccesToken(data.token);
+      await secureUserData(dataUser);
+      await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(dataUser));
     } finally {
       setLoading(false);
     }
   };
 
   const logout = async () => {
+    await logoutService();
     setUser(null);
     await AsyncStorage.removeItem(SESSION_KEY);
   };
@@ -105,6 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
