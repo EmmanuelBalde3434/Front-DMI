@@ -1,24 +1,40 @@
-import React, { useMemo, useState } from 'react';
-import { View, TextInput, FlatList, Text } from 'react-native';
-import Header from '../components/Header';
-import DoctorCard from '../components/DoctorCard';
-import { doctors as all, type Doctor } from '../data/doctors';
-import SlotPickerModal from '../components/SlotPickerModal';
+import React, { useMemo, useState, useEffect } from "react";
+import { View, TextInput, FlatList, Text, ActivityIndicator } from "react-native";
+import Header from "../components/Header";
+import DoctorCard from "../components/DoctorCard";
+import SlotPickerModal from "../components/SlotPickerModal";
+import { doctorServices, Doctor } from "../services/doctorServices";
 
 export default function Doctors({ onBook }: { onBook: (doctor: Doctor, slot: string) => void }) {
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Doctor | null>(null);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await doctorServices.getAll();
+        setDoctors(res);
+      } catch (error) {
+        console.error("Error cargando doctores:", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return all;
-    return all.filter(
+    if (!s) return doctors;
+    return doctors.filter(
       (d) =>
         d.name.toLowerCase().includes(s) ||
         d.speciality.toLowerCase().includes(s) ||
         d.hospital.toLowerCase().includes(s)
     );
-  }, [q]);
+  }, [q, doctors]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -27,10 +43,10 @@ export default function Doctors({ onBook }: { onBook: (doctor: Doctor, slot: str
       <View style={{ padding: 16 }}>
         <View
           style={{
-            backgroundColor: '#fff',
+            backgroundColor: "#fff",
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: '#e5e7eb',
+            borderColor: "#e5e7eb",
             paddingHorizontal: 12,
             paddingVertical: 10,
           }}
@@ -42,26 +58,41 @@ export default function Doctors({ onBook }: { onBook: (doctor: Doctor, slot: str
             style={{ fontSize: 14 }}
           />
         </View>
-        <Text style={{ marginTop: 8, color: '#6b7280' }}>{list.length} resultados</Text>
+        <Text style={{ marginTop: 8, color: "#6b7280" }}>
+          {loading ? "Cargando..." : `${list.length} resultados`}
+        </Text>
       </View>
 
-      <FlatList
-        data={list}
-        keyExtractor={(it) => it.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-        renderItem={({ item }) => <DoctorCard d={item} onBook={(d) => setSelected(d)} />}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+      ) : (
+        <FlatList
+          data={list}
+          keyExtractor={(it) => it.id}
+          contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+          renderItem={({ item }) => (
+            <DoctorCard d={item} onBook={(d) => setSelected(d)} />
+          )}
+          ListEmptyComponent={
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              No se encontraron doctores
+            </Text>
+          }
+        />
+      )}
 
-      <SlotPickerModal
-        visible={!!selected}
-        doctor={selected}
-        onClose={() => setSelected(null)}
-        onPick={(slot) => {
-          if (!selected) return;
-          onBook(selected, slot);
-          setSelected(null);
-        }}
-      />
+      {selected && (
+        <SlotPickerModal
+          visible={true}
+          doctor={selected}
+          onClose={() => setSelected(null)}
+          onPick={(slot) => {
+            const d = selected as Doctor;
+            onBook(d, slot);
+            setSelected(null);
+          }}
+        />
+      )}
     </View>
   );
 }

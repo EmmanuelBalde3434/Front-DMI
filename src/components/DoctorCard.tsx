@@ -1,22 +1,43 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import type { Doctor } from '../data/doctors';
-
+import React from "react";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import type { Doctor } from "../services/doctorServices";
 
 export default function DoctorCard({ d, onBook }: { d: Doctor; onBook: (d: Doctor) => void }) {
-    return (
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', padding: 14, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 3 }}>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-                <Image source={{ uri: d.avatar }} style={{ width: 64, height: 64, borderRadius: 999 }} />
-                <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '800' }}>{d.name}</Text>
-                    <Text style={{ color: '#6b7280' }}>{d.speciality} • {d.hospital}</Text>
-                    <Text style={{ marginTop: 4 }}>⭐ {d.rating.toFixed(1)}</Text>
-                </View>
-                <TouchableOpacity onPress={() => onBook(d)} style={{ backgroundColor: '#0ea5e9', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10 }}>
-                    <Text style={{ color: '#fff', fontWeight: '800' }}>Agendar</Text>
-                </TouchableOpacity>
-            </View>
+  const ratingText =
+    typeof d.rating === "number"
+      ? d.rating.toFixed(1)
+      : d.rating != null
+      ? Number(d.rating).toFixed(1)
+      : "N/A";
+
+  return (
+    <View
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        overflow: "hidden",
+        padding: 14,
+        marginBottom: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+        elevation: 3,
+      }}
+    >
+      <View style={{ flexDirection: "row", gap: 12 }}>
+        <Image source={{ uri: d.avatar || "https://via.placeholder.com/128" }} style={{ width: 64, height: 64, borderRadius: 999 }} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 16, fontWeight: "800" }}>{d.name}</Text>
+          <Text style={{ color: "#6b7280" }}>{d.speciality} • {d.hospital}</Text>
+          <Text style={{ marginTop: 4 }}>⭐ {ratingText}</Text>
         </View>
-    );
+        <TouchableOpacity
+          onPress={() => onBook(d)}
+          style={{ backgroundColor: "#0ea5e9", paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10 }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "800" }}>Agendar</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
