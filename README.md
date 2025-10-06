@@ -71,6 +71,22 @@ const login = async (email, password) => {
 Consulta el archivo SECURITY.md
  para conocer los principios y medidas de seguridad aplicadas en la app.
 
+
+🧪 Ejecución de pruebas con Jest
+
+El proyecto incluye pruebas unitarias con Jest para asegurar la calidad del código y el correcto funcionamiento de los servicios.
+
+▶ Correr todas las pruebas
+npm test
+
+▶ Correr una prueba específica
+npm run test -- <nombre_del_archivo_de_prueba>
+
+▶ Generar reporte de cobertura
+npm run test:coverage
+
+
+Esto generará un directorio coverage/ con un reporte detallado del porcentaje de código cubierto por las pruebas.
 👥 Autores
 
 Equipo de desarrollo:
