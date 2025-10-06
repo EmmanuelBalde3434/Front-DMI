@@ -3,7 +3,7 @@ import MockAdapter from "axios-mock-adapter";
 
 const BASE_URL = "https://backenddmi.onrender.com/api/citas";
 
-const citaEjemplo = {
+const doctorEx = {
     id: "1",
     name: "Juan Jiménez",
     speciality: "Cardiólogo",
@@ -13,7 +13,7 @@ const citaEjemplo = {
     slots: ["09:00", "09:30", "10:00", "12:00", "16:00"],
 };
 
-describe("Pruebas de módulo de Citas Médicas", () => {
+describe("Pruebas de módulo de Médicos", () => {
     let mock;
 
     beforeAll(() => {
@@ -25,8 +25,8 @@ describe("Pruebas de módulo de Citas Médicas", () => {
     });
 
     // GET ALL
-    it("Debe obtener todas las citas médicas", async () => {
-        mock.onGet(BASE_URL).reply(200, [citaEjemplo]);
+    it("Debe obtener todos los médicos registrados", async () => {
+        mock.onGet(BASE_URL).reply(200, [doctorEx]);
 
         const response = await axios.get(BASE_URL);
 
@@ -35,9 +35,9 @@ describe("Pruebas de módulo de Citas Médicas", () => {
     });
 
     // GET ONE
-    it("Debe obtener una cita por ID", async () => {
+    it("Debe obtener un médico por ID", async () => {
         const id = "1";
-        mock.onGet(`${BASE_URL}/${id}`).reply(200, citaEjemplo);
+        mock.onGet(`${BASE_URL}/${id}`).reply(200, doctorEx);
 
         const response = await axios.get(`${BASE_URL}/${id}`);
 
@@ -46,44 +46,44 @@ describe("Pruebas de módulo de Citas Médicas", () => {
     });
 
     // CREATE
-    it("Debe crear una nueva cita", async () => {
-        const nuevaCita = { ...citaEjemplo, id: "2", name: "María López" };
+    it("Debe registrar un nuevo médico", async () => {
+        const newDoctor = { ...doctorEx, id: "2", name: "María López" };
 
         mock.onPost(BASE_URL).reply(config => {
             const body = JSON.parse(config.data);
             return [201, { ...body, id: "2" }];
         });
 
-        const response = await axios.post(BASE_URL, nuevaCita);
+        const response = await axios.post(BASE_URL, newDoctor);
 
         expect(response.status).toBe(201);
         expect(response.data.name).toBe("María López");
     });
 
     // UPDATE
-    it("Debe actualizar una cita existente", async () => {
+    it("Debe actualizar los datos de un médico existente", async () => {
         const id = "1";
-        const citaActualizada = { ...citaEjemplo, rating: 4 };
+        const doctorUpdate = { ...doctorEx, rating: 4 };
 
         mock.onPut(`${BASE_URL}/${id}`).reply(config => {
             const body = JSON.parse(config.data);
             return [200, body];
         });
 
-        const response = await axios.put(`${BASE_URL}/${id}`, citaActualizada);
+        const response = await axios.put(`${BASE_URL}/${id}`, doctorUpdate);
 
         expect(response.status).toBe(200);
         expect(response.data.rating).toBe(4);
     });
 
     // DELETE
-    it("Debe eliminar una cita", async () => {
+    it("Debe eliminar un médico", async () => {
         const id = "1";
-        mock.onDelete(`${BASE_URL}/${id}`).reply(200, { message: "Cita eliminada" });
+        mock.onDelete(`${BASE_URL}/${id}`).reply(200, { message: "Médico eliminado" });
 
         const response = await axios.delete(`${BASE_URL}/${id}`);
 
         expect(response.status).toBe(200);
-        expect(response.data.message).toBe("Cita eliminada");
+        expect(response.data.message).toBe("Médico eliminado");
     });
 });

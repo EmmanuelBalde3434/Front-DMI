@@ -8,10 +8,12 @@ import Profile from '../screens/Profile';
 import type { TabKey } from '../types/navigation';
 import { useAppts } from '../appointments/ApptStore';
 import { type Doctor } from '../data/doctors';
-
+import {doctorServices} from "../services/doctorServices";
 
 export default function MainTabs() {
     const [tab, setTab] = useState<TabKey>('doctors');
+    const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
+
     const { addAppt } = useAppts();
 
 
@@ -30,10 +32,27 @@ export default function MainTabs() {
         setTab('appointments');
     };
 
+    const onDeleteDoctor = async (doctorId: string) => {
+        try {
+            await doctorServices.delete(doctorId);
+
+            setDoctorsList(prev => prev.filter(doc => doc.id !== doctorId));
+
+            console.log(`Doctor ${doctorId} eliminado correctamente`);
+        } catch (error) {
+            console.error("Error al eliminar doctor:", error);
+            alert("No se pudo eliminar el doctor. Intenta nuevamente.");
+        }
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
-            {tab === 'doctors' && <Doctors onBook={onBook} />}
+            {tab === 'doctors' && (
+                <Doctors
+                    onDelete={onDeleteDoctor}
+                />
+            )}
+
             {tab === 'appointments' && <Appointments />}
             {tab === 'messages' && <Messages />}
             {tab === 'profile' && <Profile />}

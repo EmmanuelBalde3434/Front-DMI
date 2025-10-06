@@ -24,7 +24,6 @@ export default function BottomBar({
     return (
         <View style={{ flexDirection: 'row', backgroundColor: '#fff' }}>
             <Tab id="doctors" label="Doctores" emoji="🩺" />
-            <Tab id="appointments" label="Mis citas" emoji="📅" />
             <Tab id="messages" label="Mensajes" emoji="💬" />
             <Tab id="profile" label="Perfil" emoji="👤" />
         </View>
