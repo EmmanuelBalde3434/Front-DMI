@@ -20,7 +20,7 @@ type Ctx = {
 const ApptContext = createContext<Ctx | undefined>(undefined);
 const KEY = "medapp_appts_v1";
 
-const BASE_URL = "https://backenddmi.onrender.com/appointments";
+const BASE_URL = "https://backenddmi-m8fe.onrender.com/appointments";
 
 export function ApptProvider({ children }: { children: React.ReactNode }) {
     const [appts, setAppts] = useState<Appointment[]>([]);

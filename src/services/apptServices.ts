@@ -1,4 +1,4 @@
-export const BASE_URL = "https://backenddmi.onrender.com/appts"; 
+export const BASE_URL = "https://backenddmi-m8fe.onrender.com/appts";
 
 export const apptServices = {
   getAll: async () => {

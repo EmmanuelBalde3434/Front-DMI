@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.marianaherra99.myrnapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +33,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "2b8c4a09-ba79-416d-8583-3f405bee6867"
       }
     }
   }
