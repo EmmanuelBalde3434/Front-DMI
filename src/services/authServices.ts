@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { apiFetch } from "./api";
 
 const keyAccesToken = "accessToken";
+const keyRefreshToken = "refreshToken";
 const keyAccesUserData = "userData";
 const BASE_URL = "/auth";
 
@@ -12,6 +13,13 @@ export async function login(email: string, password: string) {
   });
 }
 
+export async function verifyOtp(userId: string, otpCode: string) {
+  return await apiFetch(`${BASE_URL}/verify-otp`, {
+    method: "POST",
+    body: JSON.stringify({ userId, otpCode }),
+  });
+}
+
 export async function register(name: string, email: string, password: string) {
   return await apiFetch(`${BASE_URL}/register`, {
     method: "POST",
@@ -19,8 +27,10 @@ export async function register(name: string, email: string, password: string) {
   });
 }
 
+
 export async function logout() {
   await SecureStore.deleteItemAsync(keyAccesToken);
+  await SecureStore.deleteItemAsync(keyRefreshToken);
   await SecureStore.deleteItemAsync(keyAccesUserData);
   return true;
 }
@@ -28,6 +38,11 @@ export async function logout() {
 export async function secureAccesToken(value: string) {
   if (!value) throw new Error("Token inválido");
   await SecureStore.setItemAsync(keyAccesToken, value);
+}
+
+export async function secureRefreshToken(value: string) {
+  if (!value) throw new Error("Refresh token inválido");
+  await SecureStore.setItemAsync(keyRefreshToken, value);
 }
 
 export async function secureUserData(value: { id: string; email: string; name: string }) {

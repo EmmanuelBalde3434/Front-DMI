@@ -15,9 +15,22 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowLeft } from "lucide-react-native";
 import Header from "../components/Header";
 import { useAuth } from "../auth/AuthContext";
-
+import { useNavigation } from "@react-navigation/native";
 const emailOk = (s: string) => /\S+@\S+\.\S+/.test(s);
 const min6 = (s: string) => (s?.length || 0) >= 6;
+import {RootStackParamList} from "../navigation/types";
+import {createNativeStackNavigator, NativeStackNavigationProp} from "@react-navigation/native-stack";
+import OtpVerificationScreen from "../screens/OtpVerificationScreen";
+
+type LoginScreenNavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "Login"
+>;
+
+type RegisterScreenNavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "Register"
+>;
 
 const theme = {
   bg: "#F8FAFC",
@@ -149,7 +162,7 @@ function BackButton({ onPress }: { onPress: () => void }) {
   );
 }
 
-export function LoginScreen({ goRegister }: { goRegister: () => void }) {
+export function LoginScreen() {
   const { login, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -163,17 +176,31 @@ export function LoginScreen({ goRegister }: { goRegister: () => void }) {
   const passwordError = min6(password) ? "" : "La contraseña debe tener al menos 6 caracteres.";
   const valid = !emailError && !passwordError;
 
-  const submit = async () => {
-    setAttempted(true);
-    if (!valid) return;
-    try {
-      await login(email.trim(), password);
-    } catch (e: any) {
-      Alert.alert("No pudimos iniciar sesión", e?.message ?? "Revisa tus datos e inténtalo otra vez.");
-    }
-  };
+    const navigation = useNavigation<LoginScreenNavigationProp>();
 
-  return (
+    const submit = async () => {
+        setAttempted(true);
+        if (!valid) return;
+
+        try {
+            const result = await login(email.trim(), password);
+
+            if (result?.userId) {
+                console.log("Navegando a OtpVerification con userId:", result.userId);
+                navigation.navigate("OtpVerification", { userId: result.userId });
+            }
+            else {
+                Alert.alert("Error", result?.error || "No se pudo iniciar sesión.");
+            }
+        } catch (e: any) {
+            Alert.alert(
+                "No pudimos iniciar sesión",
+                e?.message ?? "Revisa tus datos e inténtalo otra vez."
+            );
+        }
+    };
+
+    return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
       <Header title="Inicia sesión" />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -230,7 +257,7 @@ export function LoginScreen({ goRegister }: { goRegister: () => void }) {
 
             <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 6 }}>
               <Text style={{ color: theme.sub }}>¿Aún no tienes cuenta?</Text>
-              <Pressable onPress={goRegister}>
+                <Pressable onPress={() => navigation.navigate("Register")}>
                 <Text style={{ color: theme.link, fontWeight: "700" }}>Crear cuenta</Text>
               </Pressable>
             </View>
@@ -241,7 +268,8 @@ export function LoginScreen({ goRegister }: { goRegister: () => void }) {
   );
 }
 
-export function RegisterScreen({ goLogin }: { goLogin: () => void }) {
+
+export function RegisterScreen() {
   const { register, loading } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -258,7 +286,10 @@ export function RegisterScreen({ goLogin }: { goLogin: () => void }) {
   const passwordError = min6(password) ? "" : "La contraseña debe tener al menos 6 caracteres.";
   const valid = !nameError && !emailError && !passwordError;
 
-  const submit = async () => {
+  const navigation = useNavigation<RegisterScreenNavigationProp>();
+
+
+    const submit = async () => {
     setAttempted(true);
     if (!valid) return;
     try {
@@ -267,7 +298,7 @@ export function RegisterScreen({ goLogin }: { goLogin: () => void }) {
       Alert.alert("No pudimos crear tu cuenta", e?.message ?? "Inténtalo otra vez en unos minutos.");
     }
   };
-
+    const goLogin = () => navigation.navigate("Login");
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
       <Header title="Crear cuenta" left={<BackButton onPress={goLogin} />} />
@@ -342,7 +373,7 @@ export function RegisterScreen({ goLogin }: { goLogin: () => void }) {
 
             <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 6 }}>
               <Text style={{ color: theme.sub }}>¿Ya tienes cuenta?</Text>
-              <Pressable onPress={goLogin}>
+                <Pressable onPress={() => navigation.navigate("Login")}>
                 <Text style={{ color: theme.link, fontWeight: "700" }}>Inicia sesión</Text>
               </Pressable>
             </View>
@@ -353,11 +384,18 @@ export function RegisterScreen({ goLogin }: { goLogin: () => void }) {
   );
 }
 
+const Stack = createNativeStackNavigator();
+
 export default function AuthStack() {
-  const [mode, setMode] = useState<"login" | "register">("login");
-  return mode === "login" ? (
-    <LoginScreen goRegister={() => setMode("register")} />
-  ) : (
-    <RegisterScreen goLogin={() => setMode("login")} />
-  );
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+        </Stack.Navigator>
+    );
 }
+
+
+
+

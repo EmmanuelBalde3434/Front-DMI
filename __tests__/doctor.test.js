@@ -1,7 +1,7 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
-const BASE_URL = "https://backenddmi.onrender.com/api/citas";
+const BASE_URL = "https://backenddmi-m8fe.onrender.com/api/citas";
 
 const doctorEx = {
     id: "1",

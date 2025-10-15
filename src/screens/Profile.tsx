@@ -70,6 +70,8 @@ export default function Profile() {
               <Text style={{ color: '#fff', fontWeight: '700' }}>Cerrar sesión</Text>
             </TouchableOpacity>
 
+            {
+              /*
             <TouchableOpacity
               onPress={showStoredToken}
               style={{
@@ -82,6 +84,8 @@ export default function Profile() {
             >
               <Text style={{ color: '#fff', fontWeight: '700' }}>Ver token almacenado</Text>
             </TouchableOpacity>
+
+            */ }
           </View>
         ) : (
           <Text style={{ color: '#6b7280' }}>No has iniciado sesión.</Text>

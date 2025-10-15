@@ -1,6 +1,6 @@
 import { Alert } from "react-native";
 
-const API_URL = "https://backenddmi.onrender.com";
+const API_URL = "https://backenddmi-m8fe.onrender.com";
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   try {
