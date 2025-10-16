@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import Header from '../components/Header';
 import { useAuth } from '../auth/AuthContext';
 import * as SecureStore from 'expo-secure-store';
+import { FontAwesome5, MaterialIcons, Entypo, FontAwesome } from '@expo/vector-icons';
+import { ModalAvisoPrivacidad } from '../components/privacidad y datos/ModalAvisoPrivacidad';
+import { ModalDatosPersonales } from '../components/privacidad y datos/ModalDatosPersonales';
+import { privacityAdvirsment } from '../data/privacityAdvirsment';
 
 export type UserData = {
   id: string;
@@ -13,22 +17,10 @@ export type UserData = {
 export default function Profile() {
   const { user, logout } = useAuth();
   const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [showModal, setShowModal] = React.useState(false);
+  const [showModalDatosPersonales, setShowModalDatosPersonales] = React.useState(false);
 
-  const keyAccesToken = "accessToken";
   const keyAccesUserData = "userData";
-
-  async function showStoredToken() {
-    try {
-      const result = await SecureStore.getItemAsync(keyAccesToken);
-      if (result) {
-        Alert.alert('🔐 Token almacenado', result);
-      } else {
-        Alert.alert('Sin datos', 'No hay valores almacenados bajo esa clave.');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo acceder al token.');
-    }
-  }
 
   useEffect(() => {
     async function showUserData() {
@@ -48,47 +40,80 @@ export default function Profile() {
     showUserData();
   }, []);
 
+  const menuItems = [
+    { icon: <FontAwesome name="user" size={20} color="#2e7d6d" />, label: 'Ver mi Información Personal',abrirModal: ()=>setShowModalDatosPersonales(true)},
+    {icon:<FontAwesome5 name="calendar-check" size={20} color="#2e7d6d" />, label: 'Aviso de Privacidad', abrirModal: ()=>setShowModal(true)},
+
+  ];
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
       <Header title="Perfil" />
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+
+      <View style={{ flex: 1, alignItems: 'center', padding: 20 }}>
         {user ? (
-          <View style={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '800' }}>{userData?.name}</Text>
-            <Text style={{ color: '#6b7280' }}>{userData?.email}</Text>
+          <View
+            style={{
+              backgroundColor: '#fff',
+              width: '100%',
+              maxWidth: 380,
+              borderRadius: 20,
+              paddingVertical: 30,
+              paddingHorizontal: 20,
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 6,
+              elevation: 3,
+            }}>
+          
+
+            <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827', marginBottom: 4 }}>
+              {userData?.name}
+            </Text>
+            <Text style={{ color: '#6b7280', fontSize: 16, marginBottom: 24 }}>
+              {userData?.email}
+            </Text>
+
+            <View style={{ width: '100%', marginBottom: 20 }}>
+              {menuItems.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={item.abrirModal}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 12,
+                    borderBottomWidth: index < menuItems.length - 1 ? 0.5 : 0,
+                    borderColor: '#e5e7eb',
+                  }}>
+                  <View style={{ width: 30, alignItems: 'center' }}>{item.icon}</View>
+                  <Text style={{ fontSize: 16, color: '#374151', marginLeft: 8 }}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <ModalAvisoPrivacidad isVisible={showModal} onClose={()=>setShowModal(false)} data={privacityAdvirsment}></ModalAvisoPrivacidad>
+            <ModalDatosPersonales isVisible={showModalDatosPersonales} onClose={()=>setShowModalDatosPersonales(false)} data={userData}></ModalDatosPersonales>
+            
 
             <TouchableOpacity
               onPress={logout}
               style={{
-                backgroundColor: '#111827',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                borderRadius: 12,
-                marginTop: 8,
-              }}
-            >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>Cerrar sesión</Text>
+                backgroundColor: 'blue',
+                paddingHorizontal: 24,
+                paddingVertical: 14,
+                borderRadius: 14,
+                width: '100%',
+                alignItems: 'center',
+              }}>
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Logout</Text>
             </TouchableOpacity>
-
-            {
-              /*
-            <TouchableOpacity
-              onPress={showStoredToken}
-              style={{
-                backgroundColor: '#374151',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                borderRadius: 12,
-                marginTop: 8,
-              }}
-            >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>Ver token almacenado</Text>
-            </TouchableOpacity>
-
-            */ }
           </View>
         ) : (
-          <Text style={{ color: '#6b7280' }}>No has iniciado sesión.</Text>
+          <Text style={{ color: '#6b7280', fontSize: 16 }}>No has iniciado sesión.</Text>
         )}
       </View>
     </View>

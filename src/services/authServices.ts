@@ -27,6 +27,12 @@ export async function register(name: string, email: string, password: string) {
   });
 }
 
+export async function eraseData(email: string) {
+  return await apiFetch(`${BASE_URL}/eraseData`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
 
 export async function logout() {
   await SecureStore.deleteItemAsync(keyAccesToken);
