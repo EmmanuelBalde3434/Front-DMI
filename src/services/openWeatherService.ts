@@ -1,11 +1,9 @@
-import { apiKeyOpenWeather } from "@env";
-
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 export async function getTehuacanWeather() {
     const queryParams = new URLSearchParams({
         q: "Tehuacan,MX",
-        appid: apiKeyOpenWeather,
+        appid: process.env.apiKeyOpenWeather,
         units: "metric",
         lang: "es",
     });

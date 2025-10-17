@@ -21,6 +21,8 @@ const min6 = (s: string) => (s?.length || 0) >= 6;
 import {RootStackParamList} from "../navigation/types";
 import {createNativeStackNavigator, NativeStackNavigationProp} from "@react-navigation/native-stack";
 import OtpVerificationScreen from "../screens/OtpVerificationScreen";
+import { PopUpAvisoPrivacidad } from "../components/privacidad y datos/PopUpAvisoPrivacidad";
+import { privacityAdvirsmentPopUp, PrivacityAdvirsmentPopUp } from "../data/privacityAdvirsment";
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -275,6 +277,9 @@ export function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [reveal, setReveal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+const [acceptedTerms, setAcceptedTerms] = useState(false);
+
 
   const [touchedName, setTouchedName] = useState(false);
   const [touchedEmail, setTouchedEmail] = useState(false);
@@ -292,6 +297,12 @@ export function RegisterScreen() {
     const submit = async () => {
     setAttempted(true);
     if (!valid) return;
+
+     if (!acceptedTerms) {
+    setShowModal(true);
+    return;
+  }
+
     try {
       await register(name.trim(), email.trim(), password);
     } catch (e: any) {
@@ -344,8 +355,7 @@ export function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               error={emailError}
-              showError={touchedEmail || attempted}
-            />
+              showError={touchedEmail || attempted}/>
 
             <Field
               icon={<Lock size={20} color={theme.sub} />}
@@ -371,6 +381,16 @@ export function RegisterScreen() {
               disabled={!valid && attempted}
             />
 
+<PopUpAvisoPrivacidad
+  isVisible={showModal}
+  onClose={() => setShowModal(false)}
+  onAccept={() => {
+    setAcceptedTerms(true);
+    setShowModal(false);
+    submit(); 
+  }}
+  data={privacityAdvirsmentPopUp}
+/>
             <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 6 }}>
               <Text style={{ color: theme.sub }}>¿Ya tienes cuenta?</Text>
                 <Pressable onPress={() => navigation.navigate("Login")}>
