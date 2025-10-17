@@ -1,8 +1,8 @@
 import * as SecureStore from "expo-secure-store";
 import { apiFetch } from "./api";
 
-const keyAccesToken = "accessToken";
-const keyAccesUserData = "userData";
+const keyAccessToken = "accessToken";
+const keyAccessUserData = "userData";
 const BASE_URL = "/auth";
 
 export async function login(email: string, password: string) {
@@ -20,25 +20,25 @@ export async function register(name: string, email: string, password: string) {
 }
 
 export async function logout() {
-  await SecureStore.deleteItemAsync(keyAccesToken);
-  await SecureStore.deleteItemAsync(keyAccesUserData);
+  await SecureStore.deleteItemAsync(keyAccessToken);
+  await SecureStore.deleteItemAsync(keyAccessUserData);
   return true;
 }
 
-export async function secureAccesToken(value: string) {
+export async function secureAccessToken(value: string) {
   if (!value) throw new Error("Token inválido");
-  await SecureStore.setItemAsync(keyAccesToken, value);
+  await SecureStore.setItemAsync(keyAccessToken, value);
 }
 
 export async function secureUserData(value: { id: string; email: string; name: string }) {
-  await SecureStore.setItemAsync(keyAccesUserData, JSON.stringify(value));
+  await SecureStore.setItemAsync(keyAccessUserData, JSON.stringify(value));
 }
 
 export async function getStoredToken() {
-  return await SecureStore.getItemAsync(keyAccesToken);
+  return await SecureStore.getItemAsync(keyAccessToken);
 }
 
-export async function getStoredUser() {
-  const raw = await SecureStore.getItemAsync(keyAccesUserData);
+async function getStoredUser() {
+  const raw = await SecureStore.getItemAsync(keyAccessUserData);
   return raw ? JSON.parse(raw) : null;
 }
