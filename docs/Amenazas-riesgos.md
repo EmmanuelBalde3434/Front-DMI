@@ -4,7 +4,7 @@
 ## 1. Modelo de amenazas
 ### 1.1 Riesgos y amenazas (STRIDE)
 
- Amenaza | Riesgo potencial | Activos afectados | Controles actuales | Controles recomendados |
+Amenaza | Riesgo potencial | Activos afectados | Controles actuales | Controles recomendados |
 |------|---------|-----------------|-----------------|------------------|----------------------|
 Suplantación de identidad mediante credenciales robadas | Acceso no autorizado a la cuenta del usuario | Credenciales de usuario, sesión | Autenticación con email y contraseña, JWT | OTP de 6 dígitos enviado por correo; expiración corta de OTP |
  Alteración de tokens o datos de usuario | Manipulación de sesiones, elevación de privilegios | JWT, refresh tokens, datos del usuario | JWT firmado, refresh tokens almacenados en DB | Revocación de refresh tokens antiguos; almacenamiento seguro de tokens |
@@ -65,7 +65,7 @@ La arquitectura DevOps implementada para el sistema se basa en un flujo CI/CD op
         
 3.  **Entrega Continua (CD)**
     
-    -   Los artefactos del frontend (React/Expo) y del backend (Node.js) se empaquetan y despliegan usando **Vercel** y **Render**.
+    -   Los artefactos del backend (Node.js) se empaquetan y despliegan usando **Render**.
         
     -   La publicación se realiza mediante un pipeline con etapas controladas:
         
